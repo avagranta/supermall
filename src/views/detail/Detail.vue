@@ -1,14 +1,23 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar class="detail-nav"
+                    @titleClick="titleClick"
+                    ref="nav"></detail-nav-bar>
+    <scroll class="content" 
+            ref="scroll" 
+            @scroll="contentScroll"
+            :probe-type="3">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
       <detail-goods-info :detailInfo="detailInfo"
                          @imageLoad="imageLoad"></detail-goods-info>
-      <detail-param-info :paramInfo="goodsParam"></detail-param-info>
-      <detail-comment-info :commentInfo="commentInfo"></detail-comment-info>
+      <detail-param-info :paramInfo="goodsParam"
+                         ref="params"></detail-param-info>
+      <detail-comment-info :commentInfo="commentInfo"
+                           ref="comment"></detail-comment-info>
+      <goods-list :goods="recommends"
+                   ref="recommend"></goods-list>
     </scroll>
   </div>
 </template>
@@ -24,8 +33,10 @@ import DetailParamInfo from './childComps/DetailParamInfo.vue'
 import DetailCommentInfo from './childComps/DetailCommentInfo.vue'
 
 import Scroll from 'components/common/scroll/Scroll'
+import GoodsList from 'components/content/goods/GoodsList'
 
-import { getDetail, Goods, Shop, GoodsParam } from 'network/detail'
+import { getDetail, Goods, Shop, GoodsParam, getRecommend } from 'network/detail'
+import { itemListenerMixin } from 'common/mixin'
 
 export default {
   name: 'Detail',
@@ -37,6 +48,7 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    GoodsList,
     Scroll
   },
   data() {
@@ -48,13 +60,38 @@ export default {
       detailInfo: {},
       goodsParam: {},
       commentInfo: {},
+      recommends: [],
+      themeTopYs: [],
+      currentIndex: 0,
     }
   },
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh();
+
+      this.themeTopYs = []; 
+      this.themeTopYs.push(0);
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      this.themeTopYs.push(Infinity);
+    },
+    titleClick(index) {
+      let y = this.themeTopYs[index] === 0 ? 0 : -(this.themeTopYs[index])
+      this.$refs.scroll.scrollTo(0, y, 50)
+    },
+    contentScroll(position) {
+      const positionY = -position.y;
+      let length = this.themeTopYs.length;
+      for (let i = 0; i < length - 1; i++) {
+        if (this.currentIndex !== i && positionY >= this.themeTopYs[i] && positionY <= this.themeTopYs[i+1]) {
+          this.currentIndex = i;
+          this.$refs.nav.currentIndex = this.currentIndex;
+        }
+      }
     }
   },
+  mixins: [itemListenerMixin],
   created() {
     // 1. 保存存入的iid
     this.iid = this.$route.params.iid;
@@ -82,6 +119,11 @@ export default {
         this.commentInfo = data.rate.list[0];
       }
     })
+
+    // 3. 获取推荐数据
+    getRecommend().then(res => {
+      this.recommends = res.data.list;
+    }) 
   }
 }
 </script>
@@ -101,6 +143,7 @@ export default {
   }
 
   .content {
+    position: relative;
     height: calc(100% - 44px);
   }
 </style>

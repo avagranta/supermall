@@ -41,7 +41,7 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import { getHomeMultidata, getHomeGoods} from 'network/home';
-  import { debounce } from 'common/utils';
+  import { itemListenerMixin } from 'common/mixin'
 
 
   export default {
@@ -69,6 +69,7 @@
         isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
+        saveY: 0,
       }
     },
     computed: {
@@ -85,16 +86,14 @@
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
     },
-    mounted() {
-      // 1. 监听图片加载
-      const refresh = debounce(this.$refs.scroll.refresh, 200);
-
-      this.$bus.$on('itemImageLoad', () => {
-        refresh();
-      })
-
-      // 2.获取tabControl的OffsetTop
-
+    mixins: [itemListenerMixin],
+    activated() {
+      this.$refs.scroll.refresh();
+      this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.getScrollY();
+      this.$bus.$off('itemImgLoad', this.itemImageListener);
     },
     methods: {
       // 事件监听相关部分
