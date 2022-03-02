@@ -41,7 +41,7 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import { getHomeMultidata, getHomeGoods} from 'network/home';
-  import { itemListenerMixin } from 'common/mixin'
+  import { itemListenerMixin, backToTop } from 'common/mixin'
 
 
   export default {
@@ -66,7 +66,7 @@
           'sell': {page: 0, list: []},
         },
         currentType: 'pop',
-        isShowBackTop: false,
+        
         tabOffsetTop: 0,
         isTabFixed: false,
         saveY: 0,
@@ -86,7 +86,7 @@
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
     },
-    mixins: [itemListenerMixin],
+    mixins: [itemListenerMixin, backToTop],
     activated() {
       this.$refs.scroll.refresh();
       this.$refs.scroll.scrollTo(0, this.saveY, 0);
@@ -113,17 +113,10 @@
         this.$refs.tabControl2.currentIndex = index;
       },
 
-      backClick(){
-        this.$refs.scroll.scrollTo(0, 0, 500);
-      },
-
+    
       contentScroll(position) {
-        // 1.判断BackTop是否显示
-        if (-position.y > 1000) {
-          this.isShowBackTop = true;
-        } else {
-          this.isShowBackTop = false;
-        }
+        // 1. 判断backtop是否显示
+        this.backTop(position);
         // 2.决定tabControl是否吸顶
         if (-position.y > this.tabOffsetTop) {
           this.isTabFixed = true;

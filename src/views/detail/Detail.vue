@@ -19,6 +19,8 @@
       <goods-list :goods="recommends"
                    ref="recommend"></goods-list>
     </scroll>
+    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -31,12 +33,14 @@ import DetailShopInfo from './childComps/DetailShopInfo.vue'
 import DetailGoodsInfo from './childComps/DetailGoodsInfo.vue'
 import DetailParamInfo from './childComps/DetailParamInfo.vue'
 import DetailCommentInfo from './childComps/DetailCommentInfo.vue'
+import DetailBottomBar from './childComps/DetailBottomBar.vue'
+import BackTop from 'components/content/backTop/BackTop'
 
 import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList'
 
 import { getDetail, Goods, Shop, GoodsParam, getRecommend } from 'network/detail'
-import { itemListenerMixin } from 'common/mixin'
+import { itemListenerMixin, backToTop } from 'common/mixin'
 
 export default {
   name: 'Detail',
@@ -48,8 +52,10 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
     GoodsList,
-    Scroll
+    Scroll,
+    BackTop
   },
   data() {
     return {
@@ -81,6 +87,10 @@ export default {
       this.$refs.scroll.scrollTo(0, y, 50)
     },
     contentScroll(position) {
+      // 1. backTop组件相关
+      this.backTop(position);
+
+      // 2. 主题tab自动切换
       const positionY = -position.y;
       let length = this.themeTopYs.length;
       for (let i = 0; i < length - 1; i++) {
@@ -89,9 +99,21 @@ export default {
           this.$refs.nav.currentIndex = this.currentIndex;
         }
       }
-    }
+    },
+    addToCart() {
+      // 1. 获取购物车需要展示的信息
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.newPrice;
+      product.iid = this.iid
+
+      // 2. 将商品添加到购物车中
+      this.$store.dispatch('addCart', product);
+    },
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backToTop],
   created() {
     // 1. 保存存入的iid
     this.iid = this.$route.params.iid;
@@ -145,5 +167,6 @@ export default {
   .content {
     position: relative;
     height: calc(100% - 44px);
+    overflow: hidden;
   }
 </style>
