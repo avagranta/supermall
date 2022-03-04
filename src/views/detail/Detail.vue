@@ -39,6 +39,7 @@ import BackTop from 'components/content/backTop/BackTop'
 import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList'
 
+
 import { getDetail, Goods, Shop, GoodsParam, getRecommend } from 'network/detail'
 import { itemListenerMixin, backToTop } from 'common/mixin'
 
@@ -106,11 +107,13 @@ export default {
       product.image = this.topImages[0];
       product.title = this.goods.title;
       product.desc = this.goods.desc;
-      product.price = this.goods.newPrice;
+      product.price = this.goods.realPrice;
       product.iid = this.iid
 
       // 2. 将商品添加到购物车中
-      this.$store.dispatch('addCart', product);
+      this.$store.dispatch('addCart', product).then(res => {
+        this.$toast.show(res, 1500);
+      });
     },
   },
   mixins: [itemListenerMixin, backToTop],
