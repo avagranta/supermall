@@ -24,10 +24,7 @@
     },
     computed: {
       isActive() {
-        // /home -> item1(/home) = true
-        // /home -> item1(/category) = false
-        // /home -> item1(/cart) = true
-        // /home -> item1(/profile) = true
+        // 通过判断当前路径是否和自身路径相同，自身路径path通过props传入
         return this.$route.path.indexOf(this.path) !== -1
       },
       activeStyle() {
