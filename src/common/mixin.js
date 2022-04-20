@@ -1,4 +1,4 @@
-import { debounce } from './utils'
+import _ from './learnUnderscore'
 
 export const itemListenerMixin = {
   data() {
@@ -8,7 +8,7 @@ export const itemListenerMixin = {
   },
   mounted() {
     // 1. 监听图片加载
-    const refresh = debounce(this.$refs.scroll.refresh, 200);
+    const refresh = _.debounce(this.$refs.scroll.refresh, 200);
 
     this.itemImageListener = () => {
       refresh();

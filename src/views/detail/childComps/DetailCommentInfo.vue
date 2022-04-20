@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import { formatDate } from "common/utils";
+  import _ from "common/learnUnderscore";
   export default {
     name: "DetailCommentInfo",
     props:{
@@ -41,7 +41,7 @@
       showDate(value) {
         // 1.将时间戳转化为date对象
         const date = new Date(value * 1000)
-        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+        return _.formatDate(date, 'yyyy-MM-dd hh:mm:ss')
         // 2.将date进行格式化
       }
     }

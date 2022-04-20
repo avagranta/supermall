@@ -1,6 +1,8 @@
 <template>
   <div id="home">
-    <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <nav-bar class="home-nav">
+      <template v-slot:center>购物街</template>
+    </nav-bar>
     <tab-control
     :titles="['流行','新款','精选']"
     @tabClick='tabClick'
@@ -13,8 +15,8 @@
     :pull-up-load="true"
     @scroll="contentScroll"
     @pullingUp="loadMore">
-    <home-swiper :banners='banners'
-    @swiperImageLoad="swiperImageLoad"></home-swiper>
+      <home-swiper :banners='banners'
+      @swiperImageLoad="swiperImageLoad"></home-swiper>
       <recommend-view :recommends='recommends'></recommend-view>
       <feature-view></feature-view>
       <tab-control
